@@ -99,7 +99,7 @@ export class PinduoduoService {
                     goods_id_list: JSON.stringify([item.goods_id]),
                     generate_we_app: true
                 };
-                // debugger;
+
                 generateQuery['sign'] = this.getSign(generateQuery);
 
                 let detail = await axios.post(this.pinduoduoConfig.url, generateQuery);
