@@ -34,4 +34,17 @@ export class PinduoduoController {
         return { success: true, message: 'OK', data: urlList };
     }
 
+
+    @Post('/get_search_goods')
+    async get_search_goods(@Query() keyword, @Query() page, @Query() pageSize, @Query() list_id, @Query() sort_type=0) {
+        
+        const goodsList = await this.pinduoduoService.getSearchGoods({
+            keyword,
+            page,
+            page_size: pageSize,
+            sort_type,
+            list_id
+        })
+    }
+
 }
