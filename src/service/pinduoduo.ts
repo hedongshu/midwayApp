@@ -20,7 +20,7 @@ interface IgenerateQuery extends IPinduoduoBaseQuery {
 interface IsearchQuery extends IPinduoduoBaseQuery {
     pid: string,
     sort_type: sort_type,
-    with_coupon:boolean,
+    with_coupon: boolean,
     block_cat_packages: string,
     custom_parameters: string,
     keyword: string
@@ -32,7 +32,7 @@ enum resource_type {
 }
 
 enum sort_type {
-    '综合排序' = 0, '按佣金排序'=2, '按价格升序' =3, '按销量降序'=6, '券后价升序排序'=9, '店铺描述评分降序'=16
+    '综合排序' = 0, '按佣金排序' = 2, '按价格升序' = 3, '按销量降序' = 6, '券后价升序排序' = 9, '店铺描述评分降序' = 16
 }
 
 @Provide()
@@ -121,9 +121,15 @@ export class PinduoduoService {
 
                 goodsList.push(Object.assign({}, goodsInfo, item))
             }
-            return { goodsList, listId }
+            return {
+                success: true,
+                data: { goodsList, listId }
+            }
         } catch (error) {
-            return error
+            return {
+                success: false,
+                data: error
+            }
         }
 
 
@@ -165,9 +171,9 @@ export class PinduoduoService {
                 result_res.push(Object.assign(urlRes.data.resource_url_response, { type: resource_type[resourceType] }))
             }
 
-            return result_res
+            return { data: { activityList: result_res }, success: true }
         } catch (error) {
-            return error
+            return { data: error, success: false }
         }
 
     }
@@ -178,35 +184,35 @@ export class PinduoduoService {
      * 返回拼多多商品搜索结果
      * @param query 
      */
-    async getSearchGoods(query: {keyword:string, page: number, page_size:number, sort_type?:number,list_id?:string}) {
+    async getSearchGoods(query: { keyword: string, page: number, page_size: number, sort_type?: number, list_id?: string }) {
 
-        let {keyword, page, page_size, list_id, sort_type} = query
+        let { keyword, page, page_size, list_id, sort_type } = query
 
         let fullQuery: IsearchQuery = {
             client_id: this.pinduoduoConfig.client_id,
             client_secret: this.pinduoduoConfig.client_secret,
             p_id: this.pinduoduoConfig.p_id,
             pid: this.pinduoduoConfig.p_id,
-            type: 'pdd.ddk.top.goods.list.query',
+            type: "pdd.ddk.goods.search",
             timestamp: new Date().getTime(),
             page: page,
             page_size: page_size,
             keyword: keyword,
             sort_type: sort_type,
-            with_coupon:true,
+            with_coupon: true,
             block_cat_packages: JSON.stringify([1]), //屏蔽商品类目包：1-拼多多小程序屏蔽类目;2-虚拟类目;3-医疗器械;4-处方药;5-非处方药
             custom_parameters: JSON.stringify({
                 uid: this.pinduoduoConfig.bined_uid
             })
         }
 
-         // 如果翻页会用到
-         if (list_id) fullQuery['list_id'] = list_id
+        // 如果翻页会用到
+        if (list_id) fullQuery['list_id'] = list_id
 
-         fullQuery.sign = this.getSign(fullQuery)
+        fullQuery.sign = this.getSign(fullQuery)
 
 
-         try {
+        try {
 
             let res = await axios.post(this.pinduoduoConfig.url, fullQuery)
 
@@ -240,16 +246,14 @@ export class PinduoduoService {
                 goodsList.push(Object.assign({}, goodsInfo, item))
             }
 
-
-            return {goodsList, listId}
-
-         } catch (error) {
-             return error
-         }
-         
+            return { data: { goodsList, listId }, success: true }
+        } catch (error) {
+            return { data: error, success: false }
+        }
 
 
- 
+
+
     }
 
 }

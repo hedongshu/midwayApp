@@ -1,4 +1,4 @@
-import { ALL, Controller, Inject, Post, Provide, Query } from "@midwayjs/decorator";
+import { ALL, Controller, Get, Inject, Post, Provide, Query } from "@midwayjs/decorator";
 import { Context } from "egg";
 import { PinduoduoService } from "../service/pinduoduo";
 
@@ -12,7 +12,7 @@ export class PinduoduoController {
     @Inject()
     pinduoduoService: PinduoduoService
 
-    @Post('/get_goods_list')
+    @Get('/get_goods_list')
     async get_goods_list(@Query() page = 1, @Query() pageSize = 10, @Query() listID = undefined, @Query() sortType = 1) {
 
         const goodsList = await this.pinduoduoService.getGoodsList({
@@ -22,29 +22,59 @@ export class PinduoduoController {
             sort_type: sortType
         })
 
-        return { success: true, message: 'OK', data: goodsList };
+        if (goodsList.success) {
+            return Object.assign(goodsList, {
+                message: 'OK'
+            })
+        } else {
+            return {
+                success: goodsList.success,
+                message: goodsList.data
+            }
+        }
+
     }
 
 
-    @Post('/get_activity_url')
+    @Get('/get_activity_url')
     async get_activity_url(@Query(ALL) query) {
 
         const urlList = await this.pinduoduoService.getActivityUrl()
 
-        return { success: true, message: 'OK', data: urlList };
+        if (urlList.success) {
+            return Object.assign(urlList, {
+                message: 'OK'
+            })
+        } else {
+            return {
+                success: urlList.success,
+                message: urlList.data
+            }
+        }
     }
 
 
-    @Post('/get_search_goods')
-    async get_search_goods(@Query() keyword, @Query() page, @Query() pageSize, @Query() list_id, @Query() sort_type=0) {
-        
+    @Get('/get_search_goods')
+    async get_search_goods(@Query() keyword = '', @Query() page = 1, @Query() pageSize = 10, @Query() listId, @Query() sort_type = 0) {
+
         const goodsList = await this.pinduoduoService.getSearchGoods({
             keyword,
             page,
             page_size: pageSize,
             sort_type,
-            list_id
+            list_id: listId
         })
+
+        if (goodsList.success) {
+            return Object.assign(goodsList, {
+                message: 'OK'
+            })
+        } else {
+            return {
+                success: goodsList.success,
+                message: goodsList.data
+            }
+        }
     }
 
 }
